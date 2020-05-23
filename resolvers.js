@@ -44,6 +44,13 @@ exports.resolvers = {
       }
     },
 
+    getUserRecipes: async(root, {username}, {Recipe}) => {
+      const userRecipes = await Recipe.find({username}).sort({
+        createdDate: 'DESC'
+      });
+
+      return userRecipes;
+    },
     getCurrentUser: async (root, args, { currentUser, User }) => {
       if (!currentUser) {
         return null;

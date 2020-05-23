@@ -3,6 +3,7 @@ import { withRouter } from 'react-router-dom';
 import { Mutation } from 'react-apollo';
 
 import Error from '../Error';
+import withAuth from '../withAuth';
 
 import { ADD_RECIPE, GET_ALL_RECIPES } from '../../queries/index';
 
@@ -67,7 +68,7 @@ const AddRecipe = (props) => {
     <Mutation
       mutation={ADD_RECIPE}
       variables={{ name, category, description, instructions, username }}
-      refetchQueries={[{query: GET_ALL_RECIPES}]}
+      refetchQueries={[{ query: GET_ALL_RECIPES }]}
       // update={updateCache}
     >
       {(addRecipe, { data, loading, error }) => {
@@ -124,4 +125,6 @@ const AddRecipe = (props) => {
   );
 };
 
-export default withRouter(AddRecipe);
+export default withAuth(session => session && session.getCurrentUser)(
+  withRouter(AddRecipe)
+);
