@@ -29,6 +29,7 @@ exports.typeDefs = gql`
 
   type Query {
     getAllRecipes: [Recipe]
+    getRecipe(id: ID!): Recipe
 
     getCurrentUser: User
   }
