@@ -59,7 +59,7 @@ class Signup extends Component {
           mutation={SIGNUP_USER}
           variables={{ username, email, password }}
         >
-          {(signupUser, { data, loading, error }) => {
+          {(signupUser, { loading, error }) => {
             return (
               <form
                 className="form"
