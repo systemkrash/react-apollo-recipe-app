@@ -13,25 +13,50 @@ exports.resolvers = {
   Query: {
     getAllRecipes: async (root, args, { Recipe }) => {
       return await Recipe.find().sort({
-        createdDate: 'desc'
+        createdDate: 'desc',
       });
     },
-    getRecipe: async(root, {id}, {Recipe}) => {
+    getRecipe: async (root, { id }, { Recipe }) => {
       return await Recipe.findById(id);
     },
-
-    getCurrentUser: async(root, args, {currentUser, User}) => {
-      if(!currentUser) {
-        return null;
-      }
-      const user = await User.findOne({username: currentUser.username})
-        .populate({
-          path: 'favorites',
-          model: 'Recipe'
+    searchRecipes: async (root, { searchTerm }, { Recipe }) => {
+      if (searchTerm) {
+        // search
+        const searchResults = await Recipe.find(
+          {
+            $text: { $search: searchTerm },
+          },
+          {
+            score: { $meta: 'textScore' },
+          }
+        ).sort({
+          score: { $meta: 'textScore' },
         });
 
+        return searchResults;
+      } else {
+        const recipes = await Recipe.find().sort({
+          likes: 'DESC',
+          createdDate: 'DESC',
+        });
+
+        return recipes;
+      }
+    },
+
+    getCurrentUser: async (root, args, { currentUser, User }) => {
+      if (!currentUser) {
+        return null;
+      }
+      const user = await User.findOne({
+        username: currentUser.username,
+      }).populate({
+        path: 'favorites',
+        model: 'Recipe',
+      });
+
       return user;
-    }
+    },
   },
   Mutation: {
     addRecipe: async (
@@ -51,15 +76,15 @@ exports.resolvers = {
     },
 
     signinUser: async (root, { username, password }, { User }) => {
-      const user = await User.findOne({username})
+      const user = await User.findOne({ username });
 
-      if(!user) {
+      if (!user) {
         throw new Error('User not found');
       }
 
-      const isValidPassword = await bcrypt.compare(password, user.password)
+      const isValidPassword = await bcrypt.compare(password, user.password);
 
-      if(!isValidPassword) {
+      if (!isValidPassword) {
         throw new Error('Invalid password');
       }
 
