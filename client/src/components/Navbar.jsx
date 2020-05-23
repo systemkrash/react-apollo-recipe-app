@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import { NavLink } from 'react-router-dom';
 
-import Signout from './Auth/Signout';
+import Signout from './Auth/Signout'; 
 
 const Navbar = ({ session }) => {
   return (
