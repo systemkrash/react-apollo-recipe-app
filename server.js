@@ -20,11 +20,11 @@ mongoose
   .connect(process.env.MONGO_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
+    useCreateIndex: true,
+    useFindAndModify: false
   })
   .then(() => console.log('DB connected'))
   .catch((err) => console.error(err));
-
-mongoose.set('useCreateIndex', true);
 
 // Initialize Apollo Server
 const server = new ApolloServer({

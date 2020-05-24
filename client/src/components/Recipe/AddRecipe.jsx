@@ -5,7 +5,11 @@ import { Mutation } from 'react-apollo';
 import Error from '../Error';
 import withAuth from '../withAuth';
 
-import { ADD_RECIPE, GET_ALL_RECIPES } from '../../queries/index';
+import {
+  ADD_RECIPE,
+  GET_ALL_RECIPES,
+  GET_USER_RECIPES,
+} from '../../queries/index';
 
 const AddRecipe = (props) => {
   const initialState = {
@@ -52,24 +56,26 @@ const AddRecipe = (props) => {
     setState({ ...initialState });
   };
 
-  // const updateCache = (cache, { data: { addRecipe } }) => {
-  //   const { getAllRecipes } = cache.readQuery({ query: GET_ALL_RECIPES });
+  const updateCache = (cache, { data: { addRecipe } }) => {
+    const { getAllRecipes } = cache.readQuery({ query: GET_ALL_RECIPES });
 
-  //   cache.writeQuery({
-  //     query: GET_ALL_RECIPES,
-  //     data: {
-  //       getAllRecipes: [addRecipe, ...getAllRecipes]
-  //     }
-  //   });
-  // };
+    cache.writeQuery({
+      query: GET_ALL_RECIPES,
+      data: {
+        getAllRecipes: [addRecipe, ...getAllRecipes],
+      },
+    });
+  };
 
   const { name, category, description, instructions, username } = state;
   return (
     <Mutation
       mutation={ADD_RECIPE}
       variables={{ name, category, description, instructions, username }}
-      refetchQueries={[{ query: GET_ALL_RECIPES }]}
-      // update={updateCache}
+      refetchQueries={() => [
+        { query: GET_USER_RECIPES, variables: { username } },
+      ]}
+      update={updateCache}
     >
       {(addRecipe, { data, loading, error }) => {
         return (
@@ -125,6 +131,6 @@ const AddRecipe = (props) => {
   );
 };
 
-export default withAuth(session => session && session.getCurrentUser)(
+export default withAuth((session) => session && session.getCurrentUser)(
   withRouter(AddRecipe)
 );
