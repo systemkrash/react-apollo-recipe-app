@@ -44,9 +44,9 @@ exports.resolvers = {
       }
     },
 
-    getUserRecipes: async(root, {username}, {Recipe}) => {
-      const userRecipes = await Recipe.find({username}).sort({
-        createdDate: 'DESC'
+    getUserRecipes: async (root, { username }, { Recipe }) => {
+      const userRecipes = await Recipe.find({ username }).sort({
+        createdDate: 'DESC',
       });
 
       return userRecipes;
@@ -81,8 +81,26 @@ exports.resolvers = {
 
       return newRecipe;
     },
-    deleteUserRecipe: async(root, {id}, {Recipe}) => {
+    deleteUserRecipe: async (root, { id }, { Recipe }) => {
       const recipe = await Recipe.findByIdAndRemove(id);
+      return recipe;
+    },
+    likeRecipe: async (root, { id, username }, { Recipe, User }) => {
+      const recipe = await Recipe.findByIdAndUpdate(id, { $inc: { likes: 1 } });
+      const user = await User.findOneAndUpdate(
+        { username },
+        { $addToSet: { favorites: id } }
+      );
+
+      return recipe;
+    },
+    unlikeRecipe: async (root, { id, username }, { Recipe, User }) => {
+      const recipe = await Recipe.findByIdAndUpdate(id, { $inc: { likes: -1 } });
+      const user = await User.findOneAndUpdate(
+        { username },
+        { $pull: { favorites: id } }
+      );
+
       return recipe;
     },
 
